@@ -1,0 +1,72 @@
+<template>
+  <div class="screen screen-main">
+    <div class="caption big">Bunker</div>
+    
+    <div class="block">
+      <div>Lobby for game with id = {{ game_id }}</div>
+      <div>I am a client with id = {{ state.client_id }}</div>
+    </div>
+
+    <div class="block">
+      <enter-name @changed-name="change_name"></enter-name>
+    </div>
+
+    <div class="block">
+      <div>Count is {{ state.count }}</div>
+      <button @click="state.increment()" class="btn">
+        Increase: {{ state.count }}
+      </button>
+    </div>
+
+    <div class="block">
+      <div>Players count {{ players_count }}</div>
+      <ul>
+        <li v-for="player in state.players"
+           :key="player.clientId">{{ player.name }}</li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { state } from '../../state.js';
+  import EnterName from '../elements/enter_name.vue';
+  import { debounce } from 'debounce';
+
+  export default {
+    name: 'Lobby',
+    props: ['game_id'],
+    components: {
+      EnterName
+    },
+    
+    data() {
+      return {
+        state
+      }
+    },
+
+    mounted: function() {
+      this.state.connect(this.game_id);
+    },
+
+    created()
+    {
+      // to not make conflicts with
+      // other debounce instances
+      this.change_name = debounce(name => {
+        console.log('name', name);
+        this.state.set_name(name);
+      });
+    },
+
+    computed:
+    {
+      players_count()
+      {
+        return !state.players ? 0
+             : Object.keys(state.players).length;
+      }
+    }
+  }
+</script>
