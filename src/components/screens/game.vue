@@ -1,5 +1,8 @@
 <template>
-	<div>Game with id = {{ id }}</div>
+	<div class="block">
+		<div>Game with id = {{ game_id }}</div>
+	</div>
+	
 	<div class="container">
     <Card code="code" type="none">Просто</Card>
     <Card code="code" type="type">Я карта</Card>
@@ -15,6 +18,6 @@
 		components: {
 			Card
 		},
-		props: ['id'],
+		props: ['game_id'],
 	}
 </script>

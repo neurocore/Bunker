@@ -3,23 +3,9 @@
 </template>
 
 <script>
-  // import * as Ably from 'ably';
-
   export default {
     name: 'App',
     components: {
-    },
-    mounted: function()
-    {
-      // let client = new Ably.Rest('XoGRTg.guovuQ:pJCW4Obj4aC1VfSporT1q7KOkGG7AnTYn80qmOGxqG0');
-      // let channel = client.channels.get('getting-started');
-      // channel.publish({
-      //   'name': 'greet',
-      //   'data': 'Hello World!',
-      // });
-
-      // console.log('client', client);
-      // console.log('channel', channel);
     },
   }
 </script>
@@ -84,6 +70,7 @@
     display: inline-block;
     padding: 0 12px;
     height: 35px;
+    line-height: 32px;
     font-size: 16px;
     margin-bottom: 10px;
     cursor: pointer;

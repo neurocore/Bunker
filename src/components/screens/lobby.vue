@@ -8,14 +8,8 @@
     </div>
 
     <div class="block">
-      <enter-name @changed-name="change_name"></enter-name>
-    </div>
-
-    <div class="block">
-      <div>Count is {{ state.count }}</div>
-      <button @click="state.increment()" class="btn">
-        Increase: {{ state.count }}
-      </button>
+      <enter-name @changed-name="change_name"
+                  :value="state.name"></enter-name>
     </div>
 
     <div class="block">
@@ -24,6 +18,10 @@
         <li v-for="player in state.players"
            :key="player.clientId">{{ player.name }}</li>
       </ul>
+    </div>
+
+    <div class="block" v-if="state.host">
+      <div @click="start_game" class="btn">Начать игру</div>
     </div>
   </div>
 </template>
@@ -50,6 +48,13 @@
       this.state.connect(this.game_id);
     },
 
+    methods: {
+      start_game() {
+        this.$router.push(`/game/${this.game_id}`);
+        this.state.start_game();
+      }
+    },
+
     created()
     {
       // to not make conflicts with
@@ -57,7 +62,7 @@
       this.change_name = debounce(name => {
         console.log('name', name);
         this.state.set_name(name);
-      });
+      }, 500);
     },
 
     computed:

@@ -12,6 +12,7 @@
 </template>
 
 <script>
+  import { state } from '../../state.js';
   import { nanoid } from 'nanoid';
 
   export default {
@@ -19,6 +20,7 @@
     methods:
     {
       create_host() {
+        state.set_host(true);
         const game_id = nanoid(12);
         this.$router.push(`/lobby/${game_id}`);
       },

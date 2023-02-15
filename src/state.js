@@ -10,12 +10,11 @@ export const state = reactive(
   client_id: nanoid(16),
   channel: null,
   players: {},
-  deck: 'empty',
-  count: 0,
+  deck: [],
 
-  increment()
+  set_host(val)
   {
-    this.count++;
+    this.host = val;
   },
 
   set_name(name)
@@ -24,6 +23,11 @@ export const state = reactive(
 
     if (this.channel)
       this.channel.presence.updateClient(this.client_id, {name});
+  },
+
+  start_game()
+  {
+    // emit event about game start here (catch in lobby -> push)
   },
 
   connect(game_id)
@@ -50,7 +54,7 @@ export const state = reactive(
 
     const presence = this.channel.presence;
 
-    presence.subscribe((e) =>
+    presence.subscribe(e =>
     {
       console.log(`Client ${e.clientId} is ${e.action}`);
       console.log('data', e.data || {});
@@ -64,6 +68,12 @@ export const state = reactive(
         {
           name: e.data.name
         }
+      }
+
+      if (e.action == 'leave')
+      {
+        if (e.clientId in this.players)
+          delete this.players[e.clientId];
       }
     });
 
