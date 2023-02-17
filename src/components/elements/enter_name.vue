@@ -10,18 +10,28 @@
     name: 'EnterName',
     props: ['value'],
     data() {
+      const pre = process.env.VUE_APP_PRE;
+      const name = process.env.NODE_ENV == 'development'
+                 ? sessionStorage.getItem(`${pre}_name`)
+                 : localStorage.getItem(`${pre}_name`);
       return {
-        name: process.env.NODE_ENV != 'development'
-            ? localStorage.getItem('cbl_bunker_name') || ''
-            : this.value
+        name: name || ''
       }
     },
     watch: {
-      name(val) {
-        if (process.env.NODE_ENV != 'development')
-          localStorage.setItem('cbl_bunker_name', val);
+      name: {
+        immediate: true,
+        handler(val)
+        {
+          const pre = process.env.VUE_APP_PRE;
+          if (process.env.NODE_ENV == 'development')
+            sessionStorage.setItem(`${pre}_name`, val);
+          else
+            localStorage.setItem(`${pre}_name`, val);
 
-        this.$emit('changed-name', val);
+          console.log('changed-name', val);
+          this.$emit('changed-name', val);
+        }
       }
     },
   }

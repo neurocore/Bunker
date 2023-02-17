@@ -1,20 +1,24 @@
+import { nanoid } from 'nanoid';
 import * as Ably from 'ably';
 import { reactive } from 'vue';
-import { nanoid } from 'nanoid';
 
 export const state = reactive(
 {
   name: '',
-  host: false,
   game_id: null,
-  client_id: nanoid(16),
+  client_id: null,
   channel: null,
   players: {},
   deck: [],
 
-  set_host(val)
+  is_host()
   {
-    this.host = val;
+    return this.client_id == this.game_id;
+  },
+
+  set_cid(val)
+  {
+    this.client_id = val;
   },
 
   set_name(name)
@@ -32,52 +36,76 @@ export const state = reactive(
 
   connect(game_id)
   {
+    const key = process.env.VUE_APP_API_KEY;
+    const pre = process.env.VUE_APP_PRE;
     this.game_id = game_id;
 
-    console.log(process.env.NODE_ENV);
-    const key = process.env.VUE_APP_API_KEY;
+    if (!this.client_id)
+    {
+      this.client_id = sessionStorage.getItem(`${pre}_cid`)
+                    || nanoid(16);
+    }
+    sessionStorage.setItem(`${pre}_cid`, this.client_id);
 
     if (this.channel || !this.game_id) return false;
 
+    const ch_name = `cbl_bunker_${this.game_id}`;
     const realtime = new Ably.Realtime({ key });
-    this.channel = realtime.channels.get(`cbl_bunker_${this.game_id}`);
+    this.channel = realtime.channels.get(ch_name);
+    const presence = this.channel.presence;
 
-    if (this.host) // Host
+    if (this.is_host()) // Host
     {
-      this.channel.subscribe(msg =>
+      presence.subscribe(e =>
       {
-        console.log("Received message:", msg.data);
+        console.log(`Client ${e.clientId} is ${e.action}`);
+
+        if (e.action == 'present'
+        ||  e.action == 'enter'
+        ||  e.action == 'update')
+        {
+          console.log(e.data);
+          if ('name' in e.data)
+            this.players[e.clientId] = { name: e.data.name };
+          this.update_presence();
+        }
+
+        if (e.action == 'leave')
+        {
+          if (e.clientId in this.players)
+          {
+            delete this.players[e.clientId];
+            this.update_presence();
+          }
+        }
       });
     }
 
-    // this.channel.publish("move", { player: "player1" });
-
-    const presence = this.channel.presence;
-
-    presence.subscribe(e =>
+    this.channel.subscribe(e =>
     {
-      console.log(`Client ${e.clientId} is ${e.action}`);
-      console.log('data', e.data || {});
-
-      if (e.action == 'present'
-      ||  e.action == 'enter'
-      ||  e.action == 'update')
+      console.log(`Action ${e.name} with`, e.data);
+      switch(e.name)
       {
-        console.log(e.data);
-        this.players[e.clientId] =
+        case 'players':
         {
-          name: e.data.name
+          if (!this.is_host())
+            this.players = e.data;
+          break;
         }
-      }
-
-      if (e.action == 'leave')
-      {
-        if (e.clientId in this.players)
-          delete this.players[e.clientId];
       }
     });
 
-    presence.enterClient(this.client_id, {name: this.name});
     return true;
+  },
+
+  disconnect()
+  {
+    this.channel.detach();
+  },
+
+  update_presence()
+  {
+    this.channel.publish("players", this.players);
+
   },
 });

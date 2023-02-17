@@ -20,8 +20,8 @@
     methods:
     {
       create_host() {
-        state.set_host(true);
         const game_id = nanoid(12);
+        state.set_cid(game_id); // host
         this.$router.push(`/lobby/${game_id}`);
       },
     }

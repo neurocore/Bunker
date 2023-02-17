@@ -20,7 +20,7 @@
       </ul>
     </div>
 
-    <div class="block" v-if="state.host">
+    <div class="block" v-if="state.is_host()">
       <div @click="start_game" class="btn">Начать игру</div>
     </div>
   </div>
@@ -46,6 +46,10 @@
 
     mounted: function() {
       this.state.connect(this.game_id);
+    },
+
+    unmounted: function() {
+      this.state.disconnect();
     },
 
     methods: {
