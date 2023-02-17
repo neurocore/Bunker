@@ -44,6 +44,14 @@
       }
     },
 
+    watch: {
+      'state.phase'(newValue, oldValue) {
+        console.log(`Phase: ${oldValue} -> ${newValue}`)
+        if (newValue == 'game')
+          this.$router.push(`/game`);
+      }
+    },
+
     mounted: function() {
       this.state.connect(this.game_id);
     },
@@ -54,7 +62,6 @@
 
     methods: {
       start_game() {
-        this.$router.push(`/game/${this.game_id}`);
         this.state.start_game();
       }
     },

@@ -13,7 +13,7 @@ const router = createRouter(
   [
     { path: '/', component: Home },
     { path: '/lobby/:game_id', component: Lobby, props: true },
-    { path: '/game/:game_id', component: Game, props: true },
+    { path: '/game/', component: Game },
     { path: '/:pathMatch(.*)*', component: NotFound },
   ],
 });

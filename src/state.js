@@ -1,9 +1,10 @@
 import { nanoid } from 'nanoid';
-import * as Ably from 'ably';
 import { reactive } from 'vue';
+import * as Ably from 'ably';
 
 export const state = reactive(
 {
+  phase: 'home',
   name: '',
   game_id: null,
   client_id: null,
@@ -14,6 +15,12 @@ export const state = reactive(
   is_host()
   {
     return this.client_id == this.game_id;
+  },
+
+  is_player()
+  {
+    console.log('this.game_id', this.game_id, typeof(this.game_id));
+    return this.game_id && this.game_id != '';
   },
 
   set_cid(val)
@@ -27,11 +34,6 @@ export const state = reactive(
 
     if (this.channel)
       this.channel.presence.updateClient(this.client_id, {name});
-  },
-
-  start_game()
-  {
-    // emit event about game start here (catch in lobby -> push)
   },
 
   connect(game_id)
@@ -92,6 +94,12 @@ export const state = reactive(
             this.players = e.data;
           break;
         }
+
+        case 'start_game':
+        {
+          this.phase = 'game';
+          break;
+        }
       }
     });
 
@@ -105,7 +113,11 @@ export const state = reactive(
 
   update_presence()
   {
-    this.channel.publish("players", this.players);
+    this.channel.publish('players', this.players);
+  },
 
+  start_game()
+  {
+    this.channel.publish('start_game', {});
   },
 });
