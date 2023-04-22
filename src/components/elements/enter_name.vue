@@ -6,16 +6,15 @@
 </template>
 
 <script>
+  import * as storage from '../../service/storage.js';
+
   export default {
     name: 'EnterName',
     props: ['value'],
     data() {
-      const pre = process.env.VUE_APP_PRE;
-      const name = process.env.NODE_ENV == 'development'
-                 ? sessionStorage.getItem(`${pre}_name`)
-                 : localStorage.getItem(`${pre}_name`);
+      const name = storage.get_global('name', '');
       return {
-        name: name || ''
+        name
       }
     },
     watch: {
@@ -23,13 +22,7 @@
         immediate: true,
         handler(val)
         {
-          const pre = process.env.VUE_APP_PRE;
-          if (process.env.NODE_ENV == 'development')
-            sessionStorage.setItem(`${pre}_name`, val);
-          else
-            localStorage.setItem(`${pre}_name`, val);
-
-          console.log('changed-name', val);
+          storage.set_global('name', val);
           this.$emit('changed-name', val);
         }
       }

@@ -53,11 +53,11 @@
     },
 
     mounted: function() {
-      this.state.connect(this.game_id);
+      this.state.establish(this.game_id);
     },
 
     unmounted: function() {
-      this.state.disconnect();
+      this.state.revoke();
     },
 
     methods: {
