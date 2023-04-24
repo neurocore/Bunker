@@ -13,7 +13,7 @@
     </div>
 
     <div class="block">
-      <div>Players count {{ players_count }}</div>
+      <div>Players count {{ state.players_n() }}</div>
       <ul>
         <li v-for="player in state.players"
            :key="player.clientId">{{ player.name }}</li>
@@ -27,28 +27,22 @@
 </template>
 
 <script>
-  import { state } from '../../state.js';
   import EnterName from '../elements/enter_name.vue';
   import { debounce } from 'debounce';
 
   export default {
     name: 'Lobby',
     props: ['game_id'],
+    inject: ['state'],
     components: {
       EnterName
-    },
-    
-    data() {
-      return {
-        state
-      }
     },
 
     watch: {
       'state.phase'(newValue, oldValue) {
         console.log(`Phase: ${oldValue} -> ${newValue}`)
         if (newValue == 'game')
-          this.$router.push(`/game`);
+          this.$router.push(`/game/${this.game_id}`);
       }
     },
 
@@ -75,14 +69,5 @@
         this.state.set_name(name);
       }, 500);
     },
-
-    computed:
-    {
-      players_count()
-      {
-        return !state.players ? 0
-             : Object.keys(state.players).length;
-      }
-    }
   }
 </script>

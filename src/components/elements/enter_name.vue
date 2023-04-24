@@ -12,9 +12,8 @@
     name: 'EnterName',
     props: ['value'],
     data() {
-      const name = storage.get_global('name', '');
       return {
-        name
+        name: storage.get_global('name', '')
       }
     },
     watch: {

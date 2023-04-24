@@ -11,7 +11,7 @@ const state = reactive(
   game_id: null,
   channel: null,
   players: {},
-  deck: [],
+  cards: {},
 
   is_host()
   {
@@ -21,6 +21,12 @@ const state = reactive(
   is_player()
   {
     return this.game_id && this.game_id != '';
+  },
+
+  players_n()
+  {
+    return !this.players ? 0
+      : Object.keys(this.players).length;
   },
 
   set_cid(val)
@@ -58,7 +64,7 @@ const state = reactive(
 
   start_game()
   {
-    this.channel.publish('start_game', {});
+    messaging.start_game();
   },
 });
 

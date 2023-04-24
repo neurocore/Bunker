@@ -54,8 +54,6 @@ export default class MessagingAbly
         ||  e.action == 'enter'
         ||  e.action == 'update')
         {
-          console.log(e.data);
-
           this._call('enter', e.clientId, e.data.name);
         }
 
@@ -89,5 +87,10 @@ export default class MessagingAbly
   {
     if (this.channel)
       this.channel.presence.updateClient(cid, {name});
+  }
+
+  start_game()
+  {
+    this.channel.publish('start_game', {});
   }
 }

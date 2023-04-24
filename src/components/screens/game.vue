@@ -19,19 +19,23 @@
 </template>
 
 <script>
-  import { state } from '../../state.js';
   import Card from '../elements/card.vue';
 
   export default {
     name: 'Game',
+    props: ['game_id'],
+    inject: ['game', 'state'],
     components: {
       Card
     },
-    props: ['game_id'],
 
-    data() {
-      return {
-        state
+    mounted: function()
+    {
+      console.log('state', this.state);
+      if (this.state.is_host())
+      {
+        const n = this.state.players_n();
+        this.game.start(n);
       }
     },
   }
