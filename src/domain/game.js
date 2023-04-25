@@ -1,6 +1,10 @@
+import { AES, enc } from 'crypto-js';
 import { state } from '../state.js';
 import * as Stage from './stage.js';
 import * as Rules from './rules.js';
+import { cards } from './cards.js';
+
+console.log('CryptoJS.AES', AES);
 
 class Game
 {
@@ -9,6 +13,12 @@ class Game
     this.stage = null;
     this.plan = [];
     this.deck = [];
+
+    const key = process.env.VUE_APP_ENCRYPT_SECRET;
+    const bytes = AES.decrypt(cards, key);
+    this.cards = JSON.parse(bytes.toString(enc.Utf8));
+
+    if (process.env.NODE_ENV == 'development') console.log(this.cards);
   }
 
   init(n)

@@ -1,13 +1,21 @@
 import * as Utils from './utils.js';
 
 export const CardType = Utils.Enum(
-  'Profession',
+  'Profession', // player's
   'Biology',
   'Health',
   'Hobbies',
   'Baggage',
   'Facts',
+
+  'Specials',
+
+  'Bunker', // global
+  'Danger',
+  'Cataclysm'
 );
+
+export const RudeType = Utils.Enum('Sex', 'Alko', 'Drugs', 'Violence');
 
 export function get_dropout_counts(n)
 {

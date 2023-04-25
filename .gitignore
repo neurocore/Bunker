@@ -25,3 +25,6 @@ pnpm-debug.log*
 # Deployment
 
 deploy.*
+
+# Not public info
+cards_data.js
