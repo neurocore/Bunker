@@ -1,50 +1,57 @@
-import { AES, enc } from 'crypto-js';
-import { state } from '../state.js';
 import * as Stage from './stage.js';
-import * as Rules from './rules.js';
-import { cards } from './cards.js';
+import Rules from './rules.js';
 
-console.log('CryptoJS.AES', AES);
+let instance = null;
 
-class Game
+class Game // Global game state
 {
   constructor()
   {
+    if (instance) return instance;
+
     this.stage = null;
-    this.plan = [];
-    this.deck = [];
-
-    const key = process.env.VUE_APP_ENCRYPT_SECRET;
-    const bytes = AES.decrypt(cards, key);
-    this.cards = JSON.parse(bytes.toString(enc.Utf8));
-
-    if (process.env.NODE_ENV == 'development') console.log(this.cards);
+    this.plan = [];    // План игры
+    this.deck = {};    // Текущая колода
+    this.bun = [];     // Открытые карты бункера
+    this.players = []; // Информация по игрокам
+    this.instance = this;
   }
 
   init(n)
   {
+    this.deck = Rules.get_deck();
     const dropouts = Rules.get_dropout_counts(n);
+    this._build_plan(dropouts);
+  }
 
-    this.plan.push(new Stage.Shuffle());
+  _build_plan(dropouts)
+  {
+    this.plan.push(new Stage.Shuffle(this));
 
+    let num = 0;
     let first = true;
     for (const dropout of dropouts)
     {
       const type = first ? Rules.CardType.Profession : null;
-      this.plan.push(new Stage.Round(type));
-      this.plan.push(new Stage.Voting(dropout));
-      this.plan.push(new Stage.Checkout());
+      this.plan.push(new Stage.Round(this, num, type));
+      this.plan.push(new Stage.Voting(this, dropout));
+      this.plan.push(new Stage.Checkout(this));
       first = false;
+      num++;
     }
     this.plan.push(new Stage.Finish());
   }
 
-  start()
+  execute_next()
   {
-    for (const stage of this.plan)
+    if (this.plan.length <= 0)
     {
-      stage.execute(state);
+      console.log('Game plan is over!');
+      return;
     }
+
+    this.stage = this.plan.shift();
+    this.stage.execute();
   }
 }
 

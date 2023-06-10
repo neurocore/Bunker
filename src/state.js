@@ -3,7 +3,7 @@ import { messaging } from './service/messaging.js';
 import * as storage from './service/storage.js';
 import { nanoid } from 'nanoid';
 
-const state = reactive(
+const state = reactive( // Client state
 {
   phase: 'home',
   name: '',

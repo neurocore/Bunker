@@ -35,7 +35,8 @@
       if (this.state.is_host())
       {
         const n = this.state.players_n();
-        this.game.start(n);
+        this.game.init(n);
+        this.game.execute_next();
       }
     },
   }
