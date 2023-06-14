@@ -1,7 +1,7 @@
-import Game from '../game.ts';
-import Stage from './stage_base.js';
+import Game from '../game.js';
+import type Base from './stage_base.js';
 
-export default class Finish implements Stage
+export default class Finish implements Base
 {
   game: Game;
 

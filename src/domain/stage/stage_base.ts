@@ -1,4 +1,4 @@
-export default interface Stage
+export default interface StageBase
 {
   execute() : void;
   finished() : void;

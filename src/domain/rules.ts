@@ -1,18 +1,6 @@
 import { AES, enc } from 'crypto-ts';
 import { the_cards } from './cards.js';
-
-/**
- * Некоторые карты содержат грубый контент, поэтому они были
- * промаркированы соответствующим типом. Планируется возможность
- * изымать некоторые типы карт из игры если они не желательны
- */
-
-enum RudeType { Sex, Alko, Drugs, Violence };
-enum CardType
-{
-  Profession, Biology, Health, Hobbies, Baggage, Facts, Specials, // players
-  Bunker, Danger, Cataclysm // global
-};
+import * as Card from './card.js';
 
 
 /**
@@ -21,15 +9,18 @@ enum CardType
 
 const key = import.meta.env.VITE_APP_ENCRYPT_SECRET;
 const bytes = AES.decrypt(the_cards, key);
-const cards = Object.freeze(JSON.parse(bytes.toString(enc.Utf8)));
+const obj = JSON.parse(bytes.toString(enc.Utf8));
+const cards = Object.freeze(obj) as Record<Card.Cat, Record<Card.Id, Object>>;
 
-if (import.meta.env.NODE_ENV == 'development') console.log(cards);
+if (import.meta.env.DEV) console.log(cards);
 
-const deck: Record<string, Array<string>> = {};
-for (const [type, obj] of Object.entries(cards))
+type Deck = Record<Card.Cat, Card.Name[]>;
+
+const deck: Deck = {};
+for (const [cat, obj] of Object.entries(cards))
 {
-  const names = Object.keys(obj as Array<string>);
-  deck[type] = names.map(name => `${type}_${name}`);
+  const ids = Object.keys(obj) as Array<string>;
+  deck[cat] = ids.map(id => `${cat}_${id}` as Card.Name);
 }
 Object.freeze(deck);
 
@@ -41,7 +32,7 @@ Object.freeze(deck);
 
 type Dropouts = [number, number, number, number, number];
 
-function get_dropouts(players_n: number) : Dropouts
+function get_dropouts(players_n: number): Dropouts
 {
   const empty: Dropouts = [0, 0, 0, 0, 0];
   const dropouts: Array<Dropouts> =
@@ -67,9 +58,41 @@ function get_dropouts(players_n: number) : Dropouts
        : dropouts[players_n];
 }
 
+function get_info(cat: Card.Cat, id: Card.Id): any;
+function get_info(card: Card.Name): any;
+
+function get_info(cat_or_card: Card.Cat | Card.Name, id?: Card.Id): any
+{
+  const error = (text: string) =>
+  {
+    console.error(text);
+    return null;
+  }
+
+  let cat: Card.Cat = '';
+
+  if (id === undefined)
+  {
+    const card = cat_or_card;
+    const parts = card.split('_', 1);
+    if (parts.length != 2) return error(`wrong cat_id = '${card}'`);
+
+    [cat, id] = parts as [Card.Cat, Card.Id];
+  }
+  else
+  {
+    cat = cat_or_card as Card.Cat;
+  }
+
+  if (!(cat in cards)) return error(`no cat = '${cat}' in cards`);
+  if (!(id in cards[cat])) return error(`no id = '${id}' in cat '${cat}'`);
+
+  return cards[cat][id];
+}
+
 export
 {
-  RudeType, CardType, type Dropouts,
+  type Deck, type Dropouts,
   cards, deck,
-  get_dropouts
+  get_dropouts, get_info
 };

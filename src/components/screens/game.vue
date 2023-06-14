@@ -25,7 +25,7 @@
   export default defineComponent({
     name: 'Game',
     props: {
-      game_id: Number
+      game_id: String
     },
     inject: ['game', 'state'],
     components: {

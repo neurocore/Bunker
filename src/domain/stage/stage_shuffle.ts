@@ -1,8 +1,8 @@
-import Game from '../game.ts';
-import Stage from './stage_base.js';
+import Game from '../game.js';
+import type Base from './stage_base.js';
 import random from 'random';
 
-export default class Shuffle implements Stage
+export default class Shuffle implements Base
 {
   game: Game;
 

@@ -1,17 +1,16 @@
-import { Stage, Shuffle, Round, Voting, Checkout, Finish } from './stage.js';
-import { CardType, cards, deck, get_dropouts } from './rules.js';
+import * as Rules from './rules.js';
+import * as Stage from './stage.js';
+import * as Card from './card.js';
 
 let instance: Game | null = null;
 
-type Deck = Record<string, string[]>;
-
 export default class Game // Global game state
 {
-  stage: Stage | null = null;
-  plan: Stage[] = [];  // План игры
-  deck: Deck = {};     // Текущая колода
-  bun: string[] = [];  // Открытые карты бункера
-  players: any[] = []; // Информация по игрокам
+  stage: Stage.Base | null = null;
+  plan: Stage.Base[] = []; // План игры
+  deck: Rules.Deck = {};   // Текущая колода
+  bun: Card.Id[] = [];     // Открытые карты бункера
+  players: any[] = [];     // Информация по игрокам
 
   constructor()
   {
@@ -19,29 +18,29 @@ export default class Game // Global game state
     instance = this;
   }
 
-  init(n)
+  init(n: number)
   {
-    this.deck = deck;
-    const dropouts = get_dropouts(n);
+    this.deck = Rules.deck;
+    const dropouts = Rules.get_dropouts(n);
     this._build_plan(dropouts);
   }
 
-  _build_plan(dropouts)
+  _build_plan(dropouts: Rules.Dropouts)
   {
-    this.plan.push(new Shuffle(this));
+    this.plan.push(new Stage.Shuffle(this));
 
     let num = 0;
     let first = true;
     for (const dropout of dropouts) 
     {
-      const type = first ? CardType.Profession : null;
-      this.plan.push(new Round(this, num, type));
-      this.plan.push(new Voting(this, dropout));
-      this.plan.push(new Checkout(this));
+      const type = first ? Card.Type.Profession : null;
+      this.plan.push(new Stage.Round(this, num, type));
+      this.plan.push(new Stage.Voting(this, dropout));
+      this.plan.push(new Stage.Checkout(this));
       first = false;
       num++;
     }
-    this.plan.push(new Finish(this));
+    this.plan.push(new Stage.Finish(this));
   }
 
   execute_next()

@@ -1,5 +1,5 @@
 const pre = import.meta.env.VITE_APP_PRE;
-const dev = import.meta.env.NODE_ENV == 'development';
+const dev = import.meta.env.DEV;
 
 export function get(name: string, def: any)
 {

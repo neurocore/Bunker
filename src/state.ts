@@ -3,15 +3,15 @@ import { messaging } from './service/messaging.js';
 import * as storage from './service/storage.js';
 import { nanoid } from 'nanoid';
 
-const state = reactive( // Client state
+const state = reactive(
 {
   phase: 'home',
   name: '',
-  client_id: null,
-  game_id: null,
-  channel: null,
-  players: {},
-  cards: {},
+  client_id: null as string | null,
+  game_id: null as string | null,
+  channel: null as any,
+  players: {} as Record<string, any>,
+  cards: {} as Record<string, any>,
 
   is_host()
   {
@@ -29,18 +29,18 @@ const state = reactive( // Client state
       : Object.keys(this.players).length;
   },
 
-  set_cid(val)
+  set_cid(val: string)
   {
     this.client_id = val;
   },
 
-  set_name(name)
+  set_name(name: string)
   {
     this.name = name;
     messaging.update_name(this.client_id, name);
   },
 
-  establish(game_id)
+  establish(game_id: string)
   {
     if (!this.client_id)
     {
@@ -77,7 +77,7 @@ messaging.subscribe('enter', (cid, name) =>
 
 messaging.subscribe('leave', cid =>
 {
-  if (cid in this.players)
+  if (cid in state.players)
   {
     delete state.players[cid];
     state.update_presence();

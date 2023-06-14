@@ -1,14 +1,14 @@
-import { CardType } from '../rules.ts';
-import Stage from './stage_base.ts';
+import * as Card from '../card.js';
+import type Base from './stage_base.js';
 import random from 'random';
 
-export default class Round implements Stage
+export default class Round implements Base
 {
   game: any;
   num: Number;
-  type: CardType | null;
+  type: Card.Type | null;
 
-  constructor(game: any, num: Number, type: CardType | null)
+  constructor(game: any, num: Number, type: Card.Type | null)
   {
     this.game = game;
     this.num = num;

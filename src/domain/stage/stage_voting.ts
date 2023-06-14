@@ -1,16 +1,15 @@
-import Game from '../game.ts';
-import { Dropouts } from '../rules.ts';
-import Stage from './stage_base.js';
+import Game from '../game.js';
+import type Base from './stage_base.js';
 
-export default class Voting implements Stage
+export default class Voting implements Base
 {
   game: Game;
-  dropouts: Dropouts;
+  dropout: number;
 
-  constructor(game: Game, dropouts: Dropouts)
+  constructor(game: Game, dropout: number)
   {
     this.game = game;
-    this.dropouts = dropouts;
+    this.dropout = dropout;
   }
 
   execute() {}

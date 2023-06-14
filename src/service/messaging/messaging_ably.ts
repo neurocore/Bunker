@@ -1,28 +1,35 @@
 import * as Ably from 'ably';
 
+type Action = string;
+type Callback = (...args: any[]) => void;
+
 export default class MessagingAbly
 {
-  constructor(key)
+  key: string;
+  channel: any;
+  callbacks: Record<Action, Callback[]>;
+
+  constructor(key: string)
   {
     this.key = key;
     this.channel = null;
-    this.callbacks = {}; // {action: [cbs]}
+    this.callbacks = {};
   }
 
-  subscribe(action, cb)
+  subscribe(action: Action, cb: Callback)
   {
     if (!(action in this.callbacks))
       this.callbacks[action] = [];
     this.callbacks[action].push(cb);
   }
 
-  _call(action, ...args)
+  _call(action: Action, ...args: any[])
   {
     if (action in this.callbacks)
       this.callbacks[action].forEach(cb => cb(...args))
   }
 
-  establish(game_id, host)
+  establish(game_id: number | string, host: boolean)
   {
     if (this.channel || !game_id) return false;
 
@@ -46,7 +53,7 @@ export default class MessagingAbly
 
     if (host) // Host
     {
-      presence.subscribe(e =>
+      presence.subscribe((e: any) =>
       {
         console.log(`Client ${e.clientId} is ${e.action}`);
 
@@ -64,7 +71,7 @@ export default class MessagingAbly
       });
     }
 
-    this.channel.subscribe(e =>
+    this.channel.subscribe((e: any) =>
     {
       console.log(`Action ${e.name} with`, e.data);
       this._call(e.name, e.data);
@@ -78,12 +85,12 @@ export default class MessagingAbly
     this.channel.detach();
   }
 
-  update_presence(players)
+  update_presence(players: Record<string, any>)
   {
     this.channel.publish('players', players);
   }
 
-  update_name(cid, name)
+  update_name(cid: string, name: string)
   {
     if (this.channel)
       this.channel.presence.updateClient(cid, {name});
