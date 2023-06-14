@@ -1,11 +1,15 @@
-import Stage from './stage_base.js';
+import { CardType } from '../rules.ts';
+import Stage from './stage_base.ts';
 import random from 'random';
 
-export default class Round extends Stage
+export default class Round implements Stage
 {
-  constructor(game, num, type)
+  game: any;
+  num: Number;
+  type: CardType | null;
+
+  constructor(game: any, num: Number, type: CardType | null)
   {
-    super();
     this.game = game;
     this.num = num;
     this.type = type;
@@ -23,12 +27,14 @@ export default class Round extends Stage
     console.log(choosed);
 
     this.game.bun.push(choosed);
-
-    
   }
+
+  finished() {}
 
   handle_card_click()
   {
 
   }
+
+  handle_vote_submit() {}
 }

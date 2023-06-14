@@ -1,11 +1,13 @@
+import Game from '../game.ts';
 import Stage from './stage_base.js';
 import random from 'random';
 
-export default class Shuffle extends Stage
+export default class Shuffle implements Stage
 {
-  constructor(game)
+  game: Game;
+
+  constructor(game: Game)
   {
-    super();
     this.game = game;
   }
 
@@ -19,4 +21,9 @@ export default class Shuffle extends Stage
     console.log(this.game.deck);
     this.game.execute_next();
   }
+
+  finished() {}
+
+  handle_card_click() {}
+  handle_vote_submit() {}
 }

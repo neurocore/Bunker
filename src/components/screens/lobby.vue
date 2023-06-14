@@ -26,11 +26,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import { defineComponent } from 'vue';
   import EnterName from '../elements/enter_name.vue';
   import { debounce } from 'debounce';
 
-  export default {
+  export default defineComponent({
     name: 'Lobby',
     props: ['game_id'],
     inject: ['state'],
@@ -69,5 +70,5 @@
         this.state.set_name(name);
       }, 500);
     },
-  }
+  });
 </script>

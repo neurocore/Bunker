@@ -11,11 +11,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import { defineComponent } from 'vue';
   import { state } from '../../state.js';
   import { nanoid } from 'nanoid';
 
-  export default {
+  export default defineComponent({
     name: 'App',
     methods:
     {
@@ -25,7 +26,7 @@
         this.$router.push(`/lobby/${game_id}`);
       },
     }
-  }
+  });
 </script>
 
 <style scoped>

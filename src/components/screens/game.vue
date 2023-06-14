@@ -18,12 +18,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import { defineComponent } from 'vue';
   import Card from '../elements/card.vue';
-
-  export default {
+  
+  export default defineComponent({
     name: 'Game',
-    props: ['game_id'],
+    props: {
+      game_id: Number
+    },
     inject: ['game', 'state'],
     components: {
       Card
@@ -39,5 +42,5 @@
         this.game.execute_next();
       }
     },
-  }
+  });
 </script>

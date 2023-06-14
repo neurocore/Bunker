@@ -26,7 +26,7 @@ export default class MessagingAbly
   {
     if (this.channel || !game_id) return false;
 
-    const pre = process.env.VUE_APP_PRE;
+    const pre = import.meta.env.VITE_APP_PRE;
     const channel_name = `${pre}_${game_id}`;
 
     const key = this.key;

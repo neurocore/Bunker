@@ -6,7 +6,7 @@
 </template>
 
 <script>
-  import * as storage from '../../service/storage.js';
+  import * as storage from '../../service/storage.ts';
 
   export default {
     name: 'EnterName',
