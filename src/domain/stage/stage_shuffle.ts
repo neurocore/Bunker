@@ -17,8 +17,6 @@ export default class Shuffle implements Base
     {
       cards.sort(() => random.float(-.5, .5));
     }
-
-    console.log(this.game.deck);
     this.game.execute_next();
   }
 

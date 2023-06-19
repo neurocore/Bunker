@@ -13,19 +13,27 @@
 
 <script lang="ts">
   import { defineComponent } from 'vue';
-  import { state } from '../../state.js';
+  import { useRouter } from 'vue-router';
+  import { clientStore } from '../../store/client.js';
   import { nanoid } from 'nanoid';
 
   export default defineComponent({
     name: 'App',
-    methods:
-    {
-      create_host() {
+    setup() {
+      const router = useRouter();
+      const store = clientStore();
+
+      const create_host = () =>
+      {
         const game_id = nanoid(12);
-        state.set_cid(game_id); // host
-        this.$router.push(`/lobby/${game_id}`);
-      },
-    }
+        store.set_cid(game_id); // host
+        router.push(`/lobby/${game_id}`);
+      };
+
+      return {
+        create_host,
+      };
+    },
   });
 </script>
 

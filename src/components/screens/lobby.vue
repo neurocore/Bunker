@@ -4,60 +4,79 @@
     
     <div class="block">
       <div>Lobby for game with id = {{ game_id }}</div>
-      <div>I am a client with id = {{ state.client_id }}</div>
+      <div>I am a client with id = {{ this.store.client_id }}</div>
     </div>
 
     <div class="block">
       <enter-name @changed-name="change_name"
-                  :value="state.name"></enter-name>
+                  :value="this.store.name"></enter-name>
     </div>
 
     <div class="block">
-      <div>Players count {{ state.players_n() }}</div>
+      <div>Players count {{ this.store.players_n }}</div>
       <ul>
-        <li v-for="player in state.players"
+        <li v-for="player in this.store.get_players"
            :key="player.clientId">{{ player.name }}</li>
       </ul>
     </div>
 
-    <div class="block" v-if="state.is_host()">
+    <div class="block" v-if="this.store.is_host">
       <div @click="start_game" class="btn">Начать игру</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+  import { messaging } from '../../service/messaging.js';
   import { defineComponent } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { clientStore } from '../../store/client.js';
   import EnterName from '../elements/enter_name.vue';
   import { debounce } from 'debounce';
 
   export default defineComponent({
     name: 'Lobby',
     props: ['game_id'],
-    inject: ['state'],
     components: {
       EnterName
     },
+    setup() {
+      const router = useRouter();
+      const store = clientStore();
+
+      return { router, store };
+    },
 
     watch: {
-      'state.phase'(newValue, oldValue) {
+      'store.phase'(newValue, oldValue) {
         console.log(`Phase: ${oldValue} -> ${newValue}`)
         if (newValue == 'game')
-          this.$router.push(`/game/${this.game_id}`);
+          this.router.push(`/game/${this.game_id}`);
       }
     },
 
     mounted: function() {
-      this.state.establish(this.game_id);
+      this.store.establish(this.game_id);
+
+      messaging.subscribe('players', data =>
+      {
+        console.log('players dry', data, this);
+        this.store.set_players(data);
+      });
+
+      messaging.subscribe('start_game', () =>
+      {
+        this.store.phase = 'game';
+      });
     },
 
     unmounted: function() {
-      this.state.revoke();
+      this.store.revoke();
     },
 
     methods: {
       start_game() {
-        this.state.start_game();
+        this.store.start_game();
       }
     },
 
@@ -67,7 +86,7 @@
       // other debounce instances
       this.change_name = debounce(name => {
         console.log('name', name);
-        this.state.set_name(name);
+        this.store.set_name(name);
       }, 500);
     },
   });

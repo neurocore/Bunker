@@ -1,9 +1,9 @@
 import * as Ably from 'ably';
+import { type Action, type Callback,
+         type GameUpdate, type MessagingBase
+       } from './messaging_base.js';
 
-type Action = string;
-type Callback = (...args: any[]) => void;
-
-export default class MessagingAbly
+export default class MessagingAbly implements MessagingBase
 {
   key: string;
   channel: any;
@@ -23,13 +23,13 @@ export default class MessagingAbly
     this.callbacks[action].push(cb);
   }
 
-  _call(action: Action, ...args: any[])
+  private call(action: Action, ...args: any[])
   {
     if (action in this.callbacks)
       this.callbacks[action].forEach(cb => cb(...args))
   }
 
-  establish(game_id: number | string, host: boolean)
+  establish(game_id: string, host: boolean)
   {
     if (this.channel || !game_id) return false;
 
@@ -51,33 +51,52 @@ export default class MessagingAbly
     this.channel = realtime.channels.get(channel_name);
     const presence = this.channel.presence;
 
-    if (host) // Host
-    {
-      presence.subscribe((e: any) =>
-      {
-        console.log(`Client ${e.clientId} is ${e.action}`);
-
-        if (e.action == 'present'
-        ||  e.action == 'enter'
-        ||  e.action == 'update')
-        {
-          this._call('enter', e.clientId, e.data.name);
-        }
-
-        if (e.action == 'leave')
-        {
-          this._call('leave', e.clientId);
-        }
-      });
-    }
+    if (host) this.init_host(presence);
 
     this.channel.subscribe((e: any) =>
     {
+      // decide here if it is host-only or client info
+
+      // if (e.name == 'make_move') console.log('do move');
+
       console.log(`Action ${e.name} with`, e.data);
-      this._call(e.name, e.data);
+      this.call(e.name, e.data);
     });
 
     return true;
+  }
+
+  private init_host(presence: any)
+  {
+    let players: Record<string, any> = {};
+
+    presence.subscribe((e: any) =>
+    {
+      const cid = e.clientId;
+      console.log(`--- Client ${cid} is ${e.action}`);
+
+      if (e.action == 'present'
+      ||  e.action == 'enter'
+      ||  e.action == 'update')
+      {
+        console.log('--- enter', e);
+
+        if (!(cid in players)) players[cid] = {};
+        Object.assign(players[cid], e.data);
+        this.update_presence(players);
+
+        console.log('--- players', players);
+      }
+
+      if (e.action == 'leave')
+      {
+        if (cid in players)
+        {
+          delete players[cid];
+          this.update_presence(players);
+        }
+      }
+    });
   }
 
   revoke()
@@ -87,17 +106,34 @@ export default class MessagingAbly
 
   update_presence(players: Record<string, any>)
   {
-    this.channel.publish('players', players);
+    const players_dry = structuredClone(players);
+
+    // Not expose other client's secret keys
+    for (const key of Object.keys(players_dry))
+      delete players_dry[key]['secret'];
+
+    this.channel.publish('players', players_dry);
   }
 
-  update_name(cid: string, name: string)
+  update_data(cid: ClientID, data: any)
   {
-    if (this.channel)
-      this.channel.presence.updateClient(cid, {name});
+    if (this.channel == null) return;
+    this.channel.presence.updateClient(cid, data);
   }
 
   start_game()
   {
+    if (this.channel == null) return;
     this.channel.publish('start_game', {});
+  }
+
+  update_game(update: GameUpdate)
+  {
+    if (this.channel == null) return;
+    this.channel.publish(
+    {
+      name: 'game_update',
+      data: update,
+    });
   }
 }

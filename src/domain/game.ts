@@ -1,3 +1,4 @@
+import { messaging } from '../service/messaging.js';
 import * as Rules from './rules.js';
 import * as Stage from './stage.js';
 import * as Card from './card.js';
@@ -52,6 +53,8 @@ export default class Game // Global game state
     }
 
     this.stage = this.plan.shift()!;
-    this.stage.execute();
+    const update = this.stage.execute();
+
+    messaging.update_game(update);
   }
 }

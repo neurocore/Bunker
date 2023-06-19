@@ -1,10 +1,10 @@
 <template>
-  <div v-if="state.is_player()" class="screen">
+  <div v-if="this.store.is_player" class="screen">
     <div class="block">
-      <div class="title">{{ state.name }}</div>
+      <div class="title">{{ this.store.name }}</div>
     </div>
     <div class="block">
-      <div>Game with id = "{{ state.game_id }}"</div>
+      <div>Game with id = "{{ this.store.game_id }}"</div>
     </div>
     
     <div class="container">
@@ -14,12 +14,14 @@
     </div>
   </div>
   <div v-else class="screen">
+    <div>Game with id = "{{ game_id }}"</div>
     Комната не найдена
   </div>
 </template>
 
 <script lang="ts">
   import { defineComponent } from 'vue';
+  import { clientStore } from '../../store/client.js';
   import Card from '../elements/card.vue';
   
   export default defineComponent({
@@ -27,17 +29,24 @@
     props: {
       game_id: String
     },
-    inject: ['game', 'state'],
+    inject: ['game'],
     components: {
       Card
+    },
+    setup() {
+      const store = clientStore();
+
+      return {
+        store,
+      };
     },
 
     mounted: function()
     {
-      console.log('state', this.state);
-      if (this.state.is_host())
+      console.log('store', this.store);
+      if (this.store.is_host)
       {
-        const n = this.state.players_n();
+        const n = this.store.players_n;
         this.game.init(n);
         this.game.execute_next();
       }
