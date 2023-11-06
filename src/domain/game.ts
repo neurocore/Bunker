@@ -1,4 +1,4 @@
-import { messaging } from '../service/messaging.js';
+import * as gs from '../service/game_server.js';
 import * as Rules from './rules.js';
 import * as Stage from './stage.js';
 import * as Card from './card.js';
@@ -55,6 +55,6 @@ export default class Game // Global game state
     this.stage = this.plan.shift()!;
     const update = this.stage.execute();
 
-    messaging.update_game(update);
+    gs.update_game(update);
   }
 }

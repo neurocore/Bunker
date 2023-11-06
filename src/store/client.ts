@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { messaging } from '../service/messaging.js';
+import * as gs from '../service/game_server.js';
 import * as storage from '../service/storage.js';
 import { nanoid } from 'nanoid';
 
@@ -52,7 +52,7 @@ export const clientStore = defineStore('client',
     {
       if (this.client_id == null) return;
       this.name = name;
-      messaging.update_data(this.client_id, {name});
+      gs.update_data(this.client_id, {name});
     },
 
     set_players(players: Record<string, any>)
@@ -69,17 +69,17 @@ export const clientStore = defineStore('client',
 
       this.secret = nanoid(20);
       this.game_id = game_id;
-      if (!messaging.establish(game_id, this.is_host)) return false;
+      if (!gs.establish(game_id)) return false;
 
-      messaging.update_data(this.client_id!, {secret: this.secret});
+      gs.update_data(this.client_id!, {secret: this.secret});
 
-      messaging.subscribe('players', data =>
+      gs.subscribe('players', (data: any) =>
       {
         console.log('players dry', data, this);
         this.players = data;
       });
 
-      messaging.subscribe('start_game', () =>
+      gs.subscribe('start_game', () =>
       {
         this.phase = 'game';
       });
@@ -89,12 +89,12 @@ export const clientStore = defineStore('client',
 
     revoke()
     {
-      messaging.revoke();
+      gs.revoke();
     },
 
     start_game()
     {
-      messaging.start_game();
+      gs.start_game();
     },
   },
 

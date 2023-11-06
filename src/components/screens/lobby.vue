@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-  import { messaging } from '../../service/messaging.js';
+  import * as gs from '../../service/game_server.js';
   import { defineComponent } from 'vue';
   import { useRouter } from 'vue-router';
   import { clientStore } from '../../store/client.js';
@@ -58,13 +58,13 @@
     mounted: function() {
       this.store.establish(this.game_id);
 
-      messaging.subscribe('players', data =>
+      gs.subscribe('players', data =>
       {
         console.log('players dry', data, this);
         this.store.set_players(data);
       });
 
-      messaging.subscribe('start_game', () =>
+      gs.subscribe('start_game', () =>
       {
         this.store.phase = 'game';
       });
